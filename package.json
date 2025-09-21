@@ -3,16 +3,12 @@
   "version": "1.0.0",
   "main": "proxy-playwright.js",
   "scripts": {
-    "start": "node proxy-playwright.js"
+    "start": "node proxy-playwright.js",
+    "postinstall": "npx playwright install chromium"
   },
   "dependencies": {
+    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "playwright": "^1.55.0"
-  },
-  "description": "",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+    "playwright": "^1.37.1"
+  }
 }

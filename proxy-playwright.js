@@ -12,7 +12,11 @@ app.get('/activar', async (req, res) => {
 
     let browser;
     try {
-        browser = await chromium.launch({ headless: true });
+   browser = await chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+});
+
         const page = await browser.newPage();
 
         // Intercepta fetch para capturar la respuesta del POST
@@ -48,4 +52,6 @@ app.get('/activar', async (req, res) => {
     }
 });
 
-app.listen(3000, () => console.log('Proxy corriendo en http://localhost:3000'));
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Proxy corriendo en http://localhost:${port}`));
+
