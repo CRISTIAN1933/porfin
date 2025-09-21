@@ -18,8 +18,9 @@ app.get('/activar', async (req, res) => {
         });
         const page = await browser.newPage();
 
-        // Intercepta fetch para capturar la respuesta del POST
         let m3uLink = null;
+
+        // Captura todas las respuestas buscando el .m3u
         page.on('response', async (response) => {
             try {
                 const text = await response.text();
@@ -27,15 +28,20 @@ app.get('/activar', async (req, res) => {
                     const match = text.match(/https?:\/\/[^\s'"]+\.m3u/);
                     if (match) m3uLink = match[0];
                 }
-            } catch (e) { }
+            } catch (e) {}
         });
 
-        await page.goto(url, { waitUntil: 'networkidle' });
+        // Abre la página
+        await page.goto(url, { waitUntil: 'domcontentloaded' });
 
-        // Simula click en el botón "Activar"
-        await page.click('.button-activar');
+        // 🚀 Simula el mismo POST que hace el formulario
+        await page.evaluate(() => {
+            const formData = new FormData();
+            formData.append('activar', '1');
+            return fetch(window.location.pathname, { method: 'POST', body: formData });
+        });
 
-        // Espera que la petición POST se complete
+        // Espera a que el servidor devuelva la activación
         await page.waitForTimeout(3000);
 
         res.json({
@@ -51,6 +57,5 @@ app.get('/activar', async (req, res) => {
     }
 });
 
-// Render da un puerto dinámico, úsalo
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Proxy corriendo en http://localhost:${port}`));
