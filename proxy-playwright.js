@@ -12,11 +12,10 @@ app.get('/activar', async (req, res) => {
 
     let browser;
     try {
-   browser = await chromium.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-});
-
+        browser = await chromium.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
         const page = await browser.newPage();
 
         // Intercepta fetch para capturar la respuesta del POST
@@ -28,7 +27,7 @@ app.get('/activar', async (req, res) => {
                     const match = text.match(/https?:\/\/[^\s'"]+\.m3u/);
                     if (match) m3uLink = match[0];
                 }
-            } catch(e){ }
+            } catch (e) { }
         });
 
         await page.goto(url, { waitUntil: 'networkidle' });
@@ -36,13 +35,13 @@ app.get('/activar', async (req, res) => {
         // Simula click en el botón "Activar"
         await page.click('.button-activar');
 
-        // Espera que la petición POST se complete y se genere el contenido
-        await page.waitForTimeout(3000); // Ajusta si tarda más
+        // Espera que la petición POST se complete
+        await page.waitForTimeout(3000);
 
         res.json({
             ok: !!m3uLink,
             m3u: m3uLink || null,
-            html: await page.content() // Opcional, si quieres todo el HTML final
+            html: await page.content()
         });
 
     } catch (error) {
@@ -52,6 +51,6 @@ app.get('/activar', async (req, res) => {
     }
 });
 
+// Render asigna el puerto en process.env.PORT
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Proxy corriendo en http://localhost:${port}`));
-
