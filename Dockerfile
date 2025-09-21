@@ -1,19 +1,20 @@
-# Usa imagen oficial de Playwright que ya trae Chromium instalado
-FROM mcr.microsoft.com/playwright:v1.44.0-jammy
+# Usa la versión recomendada de Playwright
+FROM mcr.microsoft.com/playwright:v1.55.0-jammy
 
-# Directorio de trabajo
+# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia package.json e instala dependencias
-COPY package*.json ./
-RUN npm install
+# Copia solo package.json primero (mejor para cache de dependencias)
+COPY package.json package-lock.json* ./
 
-# Copia el resto del código
+# Instala dependencias (sin volver a instalar playwright, ya está incluido en la imagen)
+RUN npm install --omit=dev && npm uninstall playwright || true
+
+# Copia el resto de tu código
 COPY . .
 
-# Puerto
-ENV PORT=3000
+# Render expone PORT automáticamente
 EXPOSE 3000
 
-# Comando de arranque
-CMD ["node", "proxy-playwright.js"]
+# Arranca la app
+CMD ["npm", "start"]
