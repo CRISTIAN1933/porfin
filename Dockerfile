@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Instala dependencias (sin volver a instalar playwright, ya está incluido en la imagen)
-RUN npm install --omit=dev && npm uninstall playwright || true
+RUN npm install --omit=dev
 
 # Copia el resto de tu código
 COPY . .
