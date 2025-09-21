@@ -18,6 +18,27 @@ app.get('/activar', async (req, res) => {
         });
         const page = await browser.newPage();
 
+        let postInfo = null;
+
+        // Interceptamos las peticiones
+        page.on('requestfinished', async (request) => {
+            try {
+                if (request.method() === 'POST' && request.url().includes('activar.php')) {
+                    const response = await request.response();
+                    postInfo = {
+                        url: request.url(),
+                        method: request.method(),
+                        status: response?.status(),
+                        headers: request.headers(),
+                        body: request.postData(),
+                        ok: response?.ok()
+                    };
+                }
+            } catch (e) {
+                console.log('Error al capturar request:', e.message);
+            }
+        });
+
         // Va a la página original
         await page.goto(url, { waitUntil: 'networkidle' });
 
@@ -27,8 +48,11 @@ app.get('/activar', async (req, res) => {
         // Espera un par de segundos para que el POST se ejecute
         await page.waitForTimeout(3000);
 
-        // Solo respondemos que se ejecutó
-        res.json({ ok: true, message: 'Botón Activar presionado' });
+        if (postInfo) {
+            res.json({ ok: true, message: 'Botón activado', request: postInfo });
+        } else {
+            res.json({ ok: false, message: 'No se detectó la petición POST al activar' });
+        }
 
     } catch (error) {
         res.json({ ok: false, message: error.message });
@@ -37,6 +61,5 @@ app.get('/activar', async (req, res) => {
     }
 });
 
-// Render da un puerto dinámico, úsalo
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Proxy corriendo en http://localhost:${port}`));
