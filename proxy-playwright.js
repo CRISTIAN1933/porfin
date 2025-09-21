@@ -51,6 +51,6 @@ app.get('/activar', async (req, res) => {
     }
 });
 
-// Render asigna el puerto en process.env.PORT
+// Render da un puerto dinámico, úsalo
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Proxy corriendo en http://localhost:${port}`));
